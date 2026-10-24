@@ -32,6 +32,8 @@ udp:
   IPv6 group.
   On nRF52 with [OpenThread](/components/openthread/), IPv6 datagrams are sent from the device's off-mesh routable
   (OMR) address, so they are held back until a Thread border router has given the device one.
+  Putting mesh-local and global destinations in one `udp:` block makes the mesh traffic wait for the border router
+  too. Use two `udp:` blocks to keep the mesh traffic independent.
 
 - **listen_address** (*Optional*, IP address): An IPv4 multicast or broadcast address, or an IPv6 multicast
   address, to listen on. A multicast address joins that group; a broadcast address, such as the default
