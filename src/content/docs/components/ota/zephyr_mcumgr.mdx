@@ -83,6 +83,12 @@ ota:
 The UDP transport adds about 5 KB of RAM: a listener thread with its receive buffer, two packet buffers, and the
 Zephyr connection manager thread it needs.
 
+> [!WARNING]
+> The UDP endpoint has no authentication or encryption. Any host that can reach the device, including hosts on your
+> LAN behind a Thread border router, can upload firmware to it or reset it without knowing the Thread network key.
+> Enable `udp` only on networks where every host is trusted, or block UDP port 1337 to the device on the border
+> router or firewall.
+
 ## Usage
 
 To connect and update the device over BLE:
