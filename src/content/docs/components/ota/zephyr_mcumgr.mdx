@@ -59,7 +59,29 @@ ota:
 ### Configuration variables
 
 - **ble** (*Optional*, boolean): Enable Bluetooth Low Energy transport for MCUmgr OTA. Default `false`.
+- **udp** (*Optional*, boolean): Enable the SMP over UDP transport, so the device can be updated over the network,
+  for example over [Thread](/components/openthread/). Needs a network, such as the one
+  [`openthread`](/components/openthread/) provides, and uses IPv6. Default `false`.
 - **hardware_uart** (*Optional*, enum): Select a hardware UART interface to use for MCUmgr OTA communication. This is used when updating devices over a serial interface rather than BLE. Options: `CDC`, `CDC1`, `UART0`, `UART1`.
+
+### Updating over the network
+
+With `udp: true` the device runs the MCUmgr server on UDP port 1337 and can be updated by IP address, hostname or
+mDNS (`.local`) name:
+
+```yaml
+# Example configuration entry
+openthread:
+  # ...
+
+ota:
+  - platform: zephyr_mcumgr
+    transport:
+      udp: true
+```
+
+The UDP transport adds about 5 KB of RAM: a listener thread with its receive buffer, two packet buffers, and the
+Zephyr connection manager thread it needs.
 
 ## Usage
 
@@ -87,6 +109,12 @@ Or connect to a specific serial:
 esphome upload nrf52_device.yaml --device /dev/ttyACM0
 ```
 
+To update over the network when `udp` is enabled, pass the device's hostname, mDNS name or IP address:
+
+```bash
+esphome upload nrf52_device.yaml --device my-device.local
+```
+
 > [!WARNING]
 > The image slots end below the partition of the [Zephyr Coredump](/components/zephyr_coredump/) component,
 > so enabling or disabling that component moves them. Flash the device over USB once after such a change.
@@ -98,6 +126,7 @@ esphome upload nrf52_device.yaml --device /dev/ttyACM0
 - [Over-the-Air Updates](/components/ota/)
 - [ESPHome OTA Updates](/components/ota/esphome/)
 - [Adafruit BLE OTA](/components/ota/adafruit_ble/)
+- [OpenThread](/components/openthread/)
 - [Safe Mode](/components/safe_mode/)
 - [nRF52](/components/nrf52/)
 - [Zephyr Coredump](/components/zephyr_coredump/)
