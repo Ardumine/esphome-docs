@@ -4,7 +4,9 @@ title: "nRF52 Firmware Updates"
 ---
 import APIRef from '@components/APIRef.astro';
 
-The nRF52 platform supports firmware updates via Over-the-Air (OTA) mechanisms. The **only supported bootloader** for OTA updates is **MCUboot**.
+The nRF52 platform supports firmware updates over the air (OTA). This page covers updates with **MCUboot**; boards with
+the Adafruit nRF52 Bootloader can be updated over BLE with [Adafruit BLE OTA](/components/ota/adafruit_ble/) instead.
+MCUboot can be used as a second-stage bootloader, enabling OTA updates even when the board was originally shipped with a different bootloader.
 
 To flash firmware onto the device, you can use any of the tools or libraries listed in the [Zephyr MCUmgr documentation](https://docs.zephyrproject.org/latest/services/device_mgmt/mcumgr.html#tools-libraries).
 Firmware updates are also available via the ESPHome command-line interface.
@@ -22,7 +24,24 @@ ota:
 
 ## Configuration variables
 
+- **status** (*Optional*, mapping): Configure a GPIO pin that MCUboot will use as an indication LED during OTA updates.
 - **transport** (*Optional*, mapping): Specifies the transport method used by Zephyr MCUmgr for OTA updates. By default, Bluetooth Low Energy (`ble: true`) is enabled.
+
+## `status`
+
+An optional LED that MCUboot controls during firmware updates to show progress.
+
+```yaml
+# Example configuration entry
+ota:
+  - platform: zephyr_mcumgr
+    status:
+      pin: P0.13
+```
+
+### Configuration variables
+
+- **pin** (**Required**, [Pin Schema](/guides/configuration-types#pin-schema)): The GPIO pin connected to the LED. The pin can be configured as active-low or active-high using the `inverted` option.
 
 ## `transport`
 
@@ -40,23 +59,7 @@ ota:
 ### Configuration variables
 
 - **ble** (*Optional*, boolean): Enable Bluetooth Low Energy transport for MCUmgr OTA. Default `false`.
-- **udp** (*Optional*, boolean): Enable SMP-over-UDP transport for MCUmgr OTA over the network (IPv6). This is used to update devices remotely over [Thread](/components/openthread/). Requires the [`network`](/components/network/) component. Default `false`.
 - **hardware_uart** (*Optional*, enum): Select a hardware UART interface to use for MCUmgr OTA communication. This is used when updating devices over a serial interface rather than BLE. Options: `CDC`, `CDC1`, `UART0`, `UART1`.
-
-### Updating over the network (Thread)
-
-The `udp` transport runs the MCUmgr SMP server over UDP so the device can be updated remotely over [Thread](/components/openthread/) by IP address, hostname, or mDNS (`.local`) name. Because Thread is IPv6-only, it requires the [`network`](/components/network/) component to provide the IP stack, together with a connectivity provider such as [`openthread`](/components/openthread/):
-
-```yaml
-# Example configuration entry
-network:
-  enable_ipv6: true
-
-ota:
-  - platform: zephyr_mcumgr
-    transport:
-      udp: true
-```
 
 ## Usage
 
@@ -84,19 +87,19 @@ Or connect to a specific serial:
 esphome upload nrf52_device.yaml --device /dev/ttyACM0
 ```
 
-To connect and update the device over the network (Thread) using its hostname, mDNS (`.local`) name, or IP address:
-
-```bash
-esphome upload nrf52_device.yaml --device my-device.local
-```
+> [!WARNING]
+> The image slots end below the partition of the [Zephyr Coredump](/components/zephyr_coredump/) component,
+> so enabling or disabling that component moves them. Flash the device over USB once after such a change.
+> An OTA update alone leaves the installed MCUboot with the old slot layout, and later OTA updates would
+> silently fail.
 
 ## See Also
 
 - [Over-the-Air Updates](/components/ota/)
 - [ESPHome OTA Updates](/components/ota/esphome/)
+- [Adafruit BLE OTA](/components/ota/adafruit_ble/)
 - [Safe Mode](/components/safe_mode/)
 - [nRF52](/components/nrf52/)
-- [OpenThread](/components/openthread/)
-- [Network](/components/network/)
+- [Zephyr Coredump](/components/zephyr_coredump/)
 - <APIRef text="ota_backend.h" path="ota/ota_backend.h" />
 - [Building and using MCUboot with Zephyr](https://docs.nordicsemi.com/bundle/ncs-latest/page/mcuboot/readme-zephyr.html)
