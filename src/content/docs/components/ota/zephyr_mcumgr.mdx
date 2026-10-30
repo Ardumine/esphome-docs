@@ -58,22 +58,19 @@ ota:
 
 ### Configuration variables
 
-- **ble** (*Optional*, boolean): Enable Bluetooth Low Energy transport for MCUmgr OTA. Default `false`.
-- **udp** (*Optional*, boolean): Enable the SMP over UDP transport, so the device can be updated over the network,
-  for example over [Thread](/components/openthread/). Needs a network, such as the one
-  [`openthread`](/components/openthread/) provides, and uses IPv6. Default `false`.
+- **ble** (*Optional*, boolean): Enable Bluetooth Low Energy transport for MCUmgr OTA. Default `false` once
+  `transport` is set; leaving out `transport` enables BLE.
+- **udp** (*Optional*, boolean): Enable the SMP over UDP transport, so the device can be updated over an IPv6 network
+  such as [Thread](/components/openthread/). Default `false`.
 - **hardware_uart** (*Optional*, enum): Select a hardware UART interface to use for MCUmgr OTA communication. This is used when updating devices over a serial interface rather than BLE. Options: `CDC`, `CDC1`, `UART0`, `UART1`.
 
-### Updating over the network
+### Updating Over the Network
 
 With `udp: true` the device runs the MCUmgr server on UDP port 1337 and can be updated by IP address, hostname or
 mDNS (`.local`) name:
 
 ```yaml
 # Example configuration entry
-openthread:
-  # ...
-
 ota:
   - platform: zephyr_mcumgr
     transport:
